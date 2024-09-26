@@ -1,7 +1,12 @@
-const Person = ({ person }) => {
-    return (
-      <li>{person.name} {person.number}</li>
-    )
-  }
-  
-  export default Person
+import React from 'react'
+
+const Person = ({ person, handleDelete }) => {
+  return (
+    <div>
+      {person.name} {person.number}
+      <button onClick={() => handleDelete(person.id)}>delete</button>
+    </div>
+  )
+}
+
+export default Person

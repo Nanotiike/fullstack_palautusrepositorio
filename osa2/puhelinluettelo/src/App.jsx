@@ -1,22 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ShowPersons from './components/ShowPersons'
 import FilterForm from './components/FilterForm'
 import AddPersonForm from './components/AddPersonForm'
+import personService from './services/persons'
+import handleDelete from './components/HandleDelete'
+import Notification from './components/Notification' 
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState('success')
+
+  const hook = () => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }
+  
+  useEffect(hook, [])
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={messageType} />
       <FilterForm filter={filter} setFilter={setFilter} />
       <h3>Add a new</h3>
       <AddPersonForm 
@@ -25,9 +36,11 @@ const App = () => {
         setNewName={setNewName} 
         setNewNumber={setNewNumber} 
         persons={persons} 
-        setPersons={setPersons} />
+        setPersons={setPersons} 
+        setMessage={setMessage}
+        setMessageType={setMessageType}/>
       <h2>Numbers</h2>
-      <ShowPersons persons={persons} filter={filter} />
+      <ShowPersons persons={persons} filter={filter} handleDelete={(id) => handleDelete({ id, persons, setPersons, setMessage, setMessageType })}/>
     </div>
   )
 }
