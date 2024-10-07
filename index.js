@@ -11,6 +11,17 @@ let hours = date_time.getHours()
 let minutes = date_time.getMinutes()
 let seconds = date_time.getSeconds()
 
+const cors = require('cors')
+
+app.use(cors())
+
+var morgan = require('morgan')
+app.use(express.json())
+
+morgan.token('body', (req) => JSON.stringify(req.body))
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 
 let persons = [
   {
@@ -34,8 +45,6 @@ let persons = [
     number:  "39-23-6423122"
   },
 ]
-
-app.use(express.json())
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
@@ -93,8 +102,12 @@ app.post('/api/persons', (req, res) => {
     res.json(person)
 })
 
-var morgan = require('morgan')
-app.use(morgan('tiny'))
+app.delete('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    persons = persons.filter(person => person.id !== id)
+  
+    res.status(204).end()
+  })
 
 const PORT = 3001
 app.listen(PORT, () => {
