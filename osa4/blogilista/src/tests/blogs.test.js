@@ -139,6 +139,34 @@ test('blog is not added if title, author or url is not given', async () => {
       .expect(400)
 })
 
+test('blog is deleted correclty', async () => {
+  const newBlog = {
+    title: 'TestingTestingTesting',
+    author: 'Testimies',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
+    likes: 15,
+    __v: 0
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .set('Content-Type', 'application/json')
+    .expect(201)
+
+  const blogToDelete = response.body
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await api.get('/api/blogs')
+  const titles = blogsAtEnd.body.map(blog => blog.title)
+
+  assert.strictEqual(blogsAtEnd.body.length, initialBlogs.length)
+  assert.ok(!titles.includes('TestingTestingTesting'))
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
