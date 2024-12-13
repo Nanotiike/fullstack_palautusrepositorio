@@ -14,7 +14,6 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
-    __v: 0
   },
   {
     id: '5a422aa71b54a676234d17f9',
@@ -22,7 +21,6 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Vanonical_string_reduction.html',
     likes: 10,
-    __v: 0
   },
   {
     id: '5a422aa71b54a676234d17fa',
@@ -30,7 +28,6 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
     likes: 12,
-    __v: 0
   }
 ]
 
@@ -71,7 +68,6 @@ test('adding a blog works', async () => {
     author: 'Testimies',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
     likes: 15,
-    __v: 0
   }
   const response = await api
     .post('/api/blogs')
@@ -92,7 +88,6 @@ test('likes is 0 if not given a value', async () => {
     title: 'TestingTestingTesting',
     author: 'Testimies',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
-    __v: 0
   }
   const response = await api
     .post('/api/blogs')
@@ -108,7 +103,6 @@ test('blog is not added if title, author or url is not given', async () => {
   const newBlog = {
     author: 'Testimies',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
-    __v: 0
   }
   const response = await api
     .post('/api/blogs')
@@ -119,7 +113,6 @@ test('blog is not added if title, author or url is not given', async () => {
     const newBlog2 = {
       title: 'TestingTestingTesting',
       author: 'Testimies',
-      __v: 0
     }
     const response2 = await api
       .post('/api/blogs')
@@ -130,7 +123,6 @@ test('blog is not added if title, author or url is not given', async () => {
   const newBlog3 = {
       title: 'TestingTestingTesting',
       url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
-      __v: 0
     }
     const response3 = await api
       .post('/api/blogs')
@@ -145,7 +137,6 @@ test('blog is deleted correclty', async () => {
     author: 'Testimies',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
     likes: 15,
-    __v: 0
   }
 
   const response = await api
@@ -165,6 +156,49 @@ test('blog is deleted correclty', async () => {
 
   assert.strictEqual(blogsAtEnd.body.length, initialBlogs.length)
   assert.ok(!titles.includes('TestingTestingTesting'))
+})
+
+test('blog is updated correctly', async () => {
+    const newBlog = {
+      title: 'TestingTestingTesting',
+      author: 'Testimies',
+      url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestingTestingTesting.html',
+      likes: 15,
+    }
+  
+    const postResponse = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Content-Type', 'application/json')
+      .expect(201)
+  
+    const blogToUpdate = postResponse.body
+  
+    const updatedBlog = {
+      title: 'Updated Title',
+      author: 'Updated Author',
+      url: 'http://updated.url',
+      likes: 20,
+    }
+  
+    const putResponse = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .set('Content-Type', 'application/json')
+      .expect(201)
+  
+    assert.ok(putResponse.body, 'Response body should not be empty')
+    assert.strictEqual(putResponse.body.title, updatedBlog.title)
+    assert.strictEqual(putResponse.body.author, updatedBlog.author)
+    assert.strictEqual(putResponse.body.url, updatedBlog.url)
+    assert.strictEqual(putResponse.body.likes, updatedBlog.likes)
+  
+    const blogsAtEnd = await api.get('/api/blogs')
+    const titles = blogsAtEnd.body.map(blog => blog.title)
+  
+    assert.strictEqual(blogsAtEnd.body.length, initialBlogs.length + 1)
+    assert.ok(titles.includes('Updated Title'))
+    assert.ok(!titles.includes('TestingTestingTesting'))
 })
 
 after(async () => {
