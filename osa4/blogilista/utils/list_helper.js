@@ -1,10 +1,10 @@
 const dummy = (blogs) => {
-    return 1
-  }
-  
+  return 1
+}
+
 const totalLikes = (blogs) => {
   return blogs.reduce((sum, blog) => sum + blog.likes, 0)
-  }
+}
 
 const favouriteBlog = (blogs) => {
   if (blogs === undefined || blogs.length == 0) {
@@ -18,7 +18,7 @@ const favouriteBlog = (blogs) => {
     likes: favouriteBlog.likes
   }
   return returnValue
-  }
+}
 
 const mostBlogs = (blogs) => {
   if (blogs === undefined || blogs.length == 0) {
@@ -78,13 +78,12 @@ const mostLikes = (blogs) => {
     likes: maxLikes
   }
   return returnValue
-
 }
 
-  module.exports = {
-    dummy, 
-    totalLikes, 
-    favouriteBlog,
-    mostBlogs,
-    mostLikes
-  }
+module.exports = {
+  dummy,
+  totalLikes,
+  favouriteBlog,
+  mostBlogs,
+  mostLikes
+}
