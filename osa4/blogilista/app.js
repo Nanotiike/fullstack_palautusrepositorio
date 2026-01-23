@@ -27,7 +27,9 @@ const connectToDatabase = async () => {
     
     // routes - set up after successful connection
     const blogsRouter = require('./controllers/blogs')
+    const usersRouter = require('./controllers/users')
     app.use('/api/blogs', blogsRouter)
+    app.use('/api/users', usersRouter)
     
     // Unknown endpoint and error handler
     app.use(middleware.unknownEndpoint)
