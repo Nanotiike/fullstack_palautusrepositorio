@@ -1,13 +1,21 @@
-const Notification = ({ message }) => {
-  if (message === null) {
-    return null
+const Notification = ({ message, type }) => {
+    if (message === null) {
+      return null
+    }
+    if (type === 'success') {
+      return (
+        <div className="success">
+          {message}
+        </div>
+      )
+    }
+    if (type === 'error') {
+      return (
+        <div className="error">
+          {message}
+        </div>
+      )
+    }
   }
-  
-  return (
-    <div style={{ color: 'red', fontStyle: 'italic', fontSize: 16 }}>
-      {message}
-    </div>
-  )
-}
 
 export default Notification

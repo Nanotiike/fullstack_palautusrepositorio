@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import AddBlogForm from './components/AddBlog.jsx'
 import Notification from './components/Notification.jsx'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState('success')
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('') 
   const [user, setUser] = useState(null)
@@ -17,23 +19,39 @@ const App = () => {
     )  
   }, [])
 
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
+    }
+  }, [])
+
   const handleLogin = async event => {
     event.preventDefault()
     
     try {
       const user = await loginService.login({ username, password })
+
+      window.localStorage.setItem(
+        'loggedNoteappUser', JSON.stringify(user)
+      ) 
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
     } catch {
-      setErrorMessage('wrong credentials')
+      setMessage('wrong username or password')
+      setMessageType('error')
       setTimeout(() => {
-        setErrorMessage(null)
+        setMessage(null)
       }, 5000)
     }
   }
 
   const loginForm = () => (
+    <h2>log in to application</h2>,
     <form onSubmit={handleLogin}>
       <div>
         <label>
@@ -70,13 +88,21 @@ const App = () => {
 
   return (
     <div>
-      <h1>Blogs</h1>
-      <Notification message={errorMessage} />
+      <h1>Blogs app</h1>
+      <Notification message={message} type={messageType} />
       
       {!user && loginForm()}
       {user && (
       <div>
-        <p>{user.name} logged in</p>
+        <p>{user.name} logged in 
+          <button onClick={() => {
+            window.localStorage.removeItem('loggedNoteappUser')
+            setUser(null)
+          }}>
+            logout
+          </button>
+        </p>
+        <AddBlogForm blogs={blogs} setBlogs={setBlogs} setMessage={setMessage} setMessageType={setMessageType} />
         {blogsForm()}
       </div>
     )}
