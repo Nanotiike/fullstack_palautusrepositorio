@@ -9,16 +9,29 @@ const { app, connectToDatabase } = require('../app')
 
 const api = supertest(app)
 
+let token
+
 before(async () => {
   await connectToDatabase()
 })
 
 beforeEach(async () => {
   await User.deleteMany({})
-  await User.insertMany(Helper.initialUsers)
+  
+  // Create test user with properly hashed password
+  const testUser = await Helper.createTestUser()
+  await User.create(testUser)
 
   await Blog.deleteMany({})
   await Blog.insertMany(Helper.initialBlogs)
+
+  // Get token for authenticated requests
+  const loginResponse = await api
+    .post('/api/login')
+    .send({ username: 'testuser1', password: 'testing' })
+    .expect(200)
+  
+  token = loginResponse.body.token
 })
 
 describe('connection to blog api and retrieving blogs', () => {
@@ -44,7 +57,12 @@ describe('connection to blog api and retrieving blogs', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    assert.deepStrictEqual(resultNote.body, BlogToView)
+    // Check that all the blog properties match (user will be populated as an object from the API)
+    assert.strictEqual(resultNote.body.title, BlogToView.title)
+    assert.strictEqual(resultNote.body.author, BlogToView.author)
+    assert.strictEqual(resultNote.body.url, BlogToView.url)
+    assert.strictEqual(resultNote.body.likes, BlogToView.likes)
+    assert.strictEqual(resultNote.body.id, BlogToView.id)
   })
 })
 
@@ -60,6 +78,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -79,6 +98,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
 
@@ -104,6 +124,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -111,6 +132,22 @@ describe('addition of a new blog', () => {
     const blogsAtEnd = await Helper.blogsInDb()
     const blog = blogsAtEnd[blogsAtEnd.length - 1]
     assert.strictEqual(blog.likes, 0)
+  })
+
+  test('adding a blog fails with status code 401 if token is not provided', async () => {
+    const newBlog = {
+      title: 'Blog without token',
+      author: 'Test Author',
+      url: 'http://example.com',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+    const blogsAtEnd = await Helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, Helper.initialBlogs.length)
   })
 })
 
@@ -143,6 +180,7 @@ describe('updating and deleting a blog', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(204)
 
     const blogsAtEnd = await Helper.blogsInDb()

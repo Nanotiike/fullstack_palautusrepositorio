@@ -1,5 +1,17 @@
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+
+const createTestUser = async () => {
+  const passwordHash = await bcrypt.hash('testing', 10)
+  return {
+    _id: new mongoose.Types.ObjectId('697381a6b5ffd379a8fcd9fb'),
+    username: 'testuser1',
+    name: 'Test User One',
+    passwordHash
+  }
+}
 
 const initialBlogs = [
   {
@@ -8,7 +20,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
-    user: '697381a6b5ffd379a8fcd9fb'
+    user: new mongoose.Types.ObjectId('697381a6b5ffd379a8fcd9fb')
   },
   {
     id: '5a422aa71b54a676234d17f9',
@@ -16,7 +28,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Vanonical_string_reduction.html',
     likes: 10,
-    user: '697381a6b5ffd379a8fcd9fb'
+    user: new mongoose.Types.ObjectId('697381a6b5ffd379a8fcd9fb')
   },
   {
     id: '5a422aa71b54a676234d17fa',
@@ -24,17 +36,8 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
     likes: 12,
-    user: '697381a6b5ffd379a8fcd9fb'
+    user: new mongoose.Types.ObjectId('697381a6b5ffd379a8fcd9fb')
   }
-]
-
-const initialUsers = [
-  {
-    _id: '697381a6b5ffd379a8fcd9fb',
-    username: 'testuser1',
-    name: 'Test User One',
-    passwordHash: 'testing',
-  },
 ]
 
 const nonExistingId = async () => {
@@ -56,5 +59,5 @@ const usersInDb = async () => {
 }
 
 module.exports = {
-  initialBlogs, initialUsers, nonExistingId, blogsInDb, usersInDb
+  initialBlogs, createTestUser, nonExistingId, blogsInDb, usersInDb
 }

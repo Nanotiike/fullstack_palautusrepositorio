@@ -15,6 +15,7 @@ app.use(express.static('dist'))
 app.use(express.json())
 const middleware = require('./utils/middleware')
 app.use(middleware.requestLogger)
+app.use(middleware.tokenExtractor)
 
 // MongoDB connection
 const mongoose = require('mongoose')
@@ -28,6 +29,8 @@ const connectToDatabase = async () => {
     // routes - set up after successful connection
     const blogsRouter = require('./controllers/blogs')
     const usersRouter = require('./controllers/users')
+    const loginRouter = require('./controllers/login')
+    app.use('/api/login', loginRouter)
     app.use('/api/blogs', blogsRouter)
     app.use('/api/users', usersRouter)
     
