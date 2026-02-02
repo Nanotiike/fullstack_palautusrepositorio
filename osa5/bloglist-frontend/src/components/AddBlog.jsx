@@ -2,6 +2,7 @@ import blogService from '../services/blogs'
 
 const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType, onBlogAdded }) => {
   const addBlog = async (event) => {
+    console.log('addBlog function called!')
     event.preventDefault()
 
     // Blog object
@@ -11,6 +12,8 @@ const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType, onBlogAdded 
       url: event.target.url.value,
       likes: 0
     }
+
+    console.log('Blog object to add:', blogObject)
 
     // Try to add the blog
     try {
