@@ -1,6 +1,6 @@
 import blogService from '../services/blogs'
 
-const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType }) => {
+const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType, onBlogAdded }) => {
   const addBlog = async (event) => {
     event.preventDefault()
 
@@ -18,17 +18,21 @@ const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType }) => {
       setBlogs(blogs.concat(returnedBlog))
       setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
       setMessageType('success')
+      event.target.reset()
+      if (onBlogAdded) {
+        onBlogAdded()
+      }
       setTimeout(() => {
-      setMessage(null)
+        setMessage(null)
       }, 5000)
     } catch (error) {
       console.error('Failed to add blog:', error)
       setMessage('failed to add blog')
       setMessageType('error')
       setTimeout(() => {
-      setMessage(null)
-    }, 5000)
-  }
+        setMessage(null)
+      }, 5000)
+    }
   }
 
   // Form for adding a blog

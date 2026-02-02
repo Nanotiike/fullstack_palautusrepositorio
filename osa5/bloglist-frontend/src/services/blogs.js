@@ -19,9 +19,24 @@ const addBlog = async blogObject => {
     headers: { Authorization: token }
   }
 
-  console.log('Token being sent:', token)
   const response = await axios.post(baseUrl, blogObject, config)
   return response.data
 }
 
-export default { getAll, addBlog, setToken }
+// Update likes for a specific blog
+const addLike = async (id, blogObject) => {
+  const response = await axios.put(`${baseUrl}/${id}`, blogObject)
+  return response.data
+}
+
+// Remove a blog from the backend
+const removeBlog = async (id) => {
+  const config = {
+    headers: { Authorization: token }
+  }
+
+  const response = await axios.delete(`${baseUrl}/${id}`, config)
+  return response.data
+}
+
+export default { getAll, addBlog, setToken, addLike, removeBlog }

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import AddBlogForm from './components/AddBlog.jsx'
 import Notification from './components/Notification.jsx'
+import Togglable from './components/Togglable.jsx'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -9,14 +10,15 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [message, setMessage] = useState(null)
   const [messageType, setMessageType] = useState('success')
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const togglableRef = useRef(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -30,13 +32,13 @@ const App = () => {
 
   const handleLogin = async event => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({ username, password })
 
       window.localStorage.setItem(
         'loggedNoteappUser', JSON.stringify(user)
-      ) 
+      )
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -77,35 +79,46 @@ const App = () => {
     </form>
   )
 
-  const blogsForm = () => (
-    <div>
-    <h2>blogs</h2>
-    {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} />
-    )}
-    </div>
-  )
+  const showBlogs = () => {
+    const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+
+    return (
+      <div>
+        <h2>blogs</h2>
+        {sortedBlogs.map(blog =>
+          <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} />
+        )}
+      </div>
+    )
+  }
 
   return (
     <div>
       <h1>Blogs app</h1>
       <Notification message={message} type={messageType} />
-      
+
       {!user && loginForm()}
       {user && (
-      <div>
-        <p>{user.name} logged in 
-          <button onClick={() => {
-            window.localStorage.removeItem('loggedNoteappUser')
-            setUser(null)
-          }}>
+        <div>
+          <p>{user.name} logged in
+            <button onClick={() => {
+              window.localStorage.removeItem('loggedNoteappUser')
+              setUser(null)
+            }}>
             logout
-          </button>
-        </p>
-        <AddBlogForm blogs={blogs} setBlogs={setBlogs} setMessage={setMessage} setMessageType={setMessageType} />
-        {blogsForm()}
-      </div>
-    )}
+            </button>
+          </p>
+          <Togglable ref={togglableRef} buttonLabel="new blog">
+            <AddBlogForm
+              blogs={blogs}
+              setBlogs={setBlogs}
+              setMessage={setMessage}
+              setMessageType={setMessageType}
+              onBlogAdded={() => togglableRef.current.toggleVisibility()} />
+          </Togglable>
+          {showBlogs()}
+        </div>
+      )}
     </div>
   )
 }
