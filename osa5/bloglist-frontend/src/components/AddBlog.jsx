@@ -7,9 +7,9 @@ const AddBlogForm = ({ blogs, setBlogs, setMessage, setMessageType, onBlogAdded 
 
     // Blog object
     const blogObject = {
-      title: event.target.title.value,
-      author: event.target.author.value,
-      url: event.target.url.value,
+      title: event.target.elements.title.value,
+      author: event.target.elements.author.value,
+      url: event.target.elements.url.value,
       likes: 0
     }
 
