@@ -33,6 +33,12 @@ const connectToDatabase = async () => {
     app.use('/api/login', loginRouter)
     app.use('/api/blogs', blogsRouter)
     app.use('/api/users', usersRouter)
+
+    // Testing routes - only in test environment
+    if (process.env.NODE_ENV === 'test') {
+      const testingRouter = require('./controllers/testing')
+      app.use('/api/testing', testingRouter)
+    }
     
     // Unknown endpoint and error handler
     app.use(middleware.unknownEndpoint)

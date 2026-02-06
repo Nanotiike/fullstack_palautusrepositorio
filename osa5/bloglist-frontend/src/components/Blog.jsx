@@ -2,7 +2,7 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 
 // Component to display a single blog with toggleable details and like functionality
-const Blog = ({ blog, blogs, setBlogs }) => {
+const Blog = ({ blog, blogs, setBlogs, user }) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
@@ -27,6 +27,14 @@ const Blog = ({ blog, blogs, setBlogs }) => {
     }
   }
 
+  console.log('Debugging blog:', {
+    blogTitle: blog.title,
+    blogUser: blog.user,  // Check if this is an object {name: 'tt', ...} or something else
+    userName: user.name,  // Should be 'tt' from login
+    user: user,  // Check the entire user object
+    conditionResult: blog.user?.id === user.id  // Logs true/false
+  });
+
   return (
     <div className="blogStyle">
       <div style={hideWhenVisible}>
@@ -39,7 +47,7 @@ const Blog = ({ blog, blogs, setBlogs }) => {
           <button onClick={handleLike}>like</button>
         </p>
         <p>{blog.author}</p>
-        {blog.user && blog.user.name && (
+        {blog.user.id === user.id && (
           <button onClick={handleRemove}>remove</button>
         )}
       </div>

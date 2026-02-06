@@ -15,12 +15,15 @@ const App = () => {
   const [user, setUser] = useState(null)
   const togglableRef = useRef(null)
 
+  // Fetch blogs when the user logs in
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
-  }, [])
+    if (user) {  
+      blogService.getAll().then(blogs => setBlogs(blogs));
+    }
+    console.log('App: Blogs fetched after login:', blogs);
+  }, [user]); 
 
+  // Check for logged in user on component mount
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
     if (loggedUserJSON) {
@@ -30,6 +33,7 @@ const App = () => {
     }
   }, [])
 
+  // Handle user login
   const handleLogin = async event => {
     event.preventDefault()
 
@@ -52,6 +56,7 @@ const App = () => {
     }
   }
 
+  // Function to render the login form
   const loginForm = () => (
     <h2>log in to application</h2>,
     <form onSubmit={handleLogin}>
@@ -79,19 +84,22 @@ const App = () => {
     </form>
   )
 
+  // Function to render the list of blogs, sorted by likes
   const showBlogs = () => {
     const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+    console.log('App: Rendering blogs:', sortedBlogs.map(b => ({ title: b.title, user: b.user })));
 
     return (
       <div>
         <h2>blogs</h2>
         {sortedBlogs.map(blog =>
-          <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} />
+          <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} user={user}/>
         )}
       </div>
     )
   }
 
+  // Main render function
   return (
     <div>
       <h1>Blogs app</h1>
